@@ -23,6 +23,12 @@ Check out the [demos](http://diy.github.com/jquery-placeholder/)!
 		<td valign="top"><code>false</code></td>
 		<td valign="top">If <code>true</code>, artificial placeholder elements will be added even if the browser natively supports them.</td>
 	</tr>
+	<tr>
+		<td valign="top">excludes</td>
+		<td valign="top"><code>array</code></td>
+		<td valign="top"><code>[]</code></td>
+		<td valign="top">Used to allow inline css properties to be overriden by custom styles</td>
+	</tr>
 </table>
 
 ### CSS Styling

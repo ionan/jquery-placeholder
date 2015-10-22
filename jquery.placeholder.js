@@ -30,13 +30,25 @@
 		var i, evt, text, styles, zIndex, marginTop, dy, attrNode;
 		var $input = $(input), $placeholder;
 
+		var excludeRule = function(excludes,rule){
+			if (!excludes) return false;
+			if (rule.indexOf("padding") == 0 && excludes.indexOf("padding")) return true;
+			if (rule.indexOf("margin") == 0 && excludes.indexOf("margin")) return true;
+			if (rule.indexOf("border") == 0 && excludes.indexOf("border")) return true;
+			return excludes.indexOf(rule) > -1;
+		};
+
 		try {
-			attrNode = $input[0].getAttributeNode('placeholder');
-			if (!attrNode) return;
-			text = $input[0].getAttribute('placeholder');
-			if (!text || !text.length) return;
-			$input[0].setAttribute('placeholder', '');
-			$input.data('placeholder', text);
+			if (options && options["text"]){
+				text = options["text"];
+			} else {
+				attrNode = $input[0].getAttributeNode('placeholder');
+				if (!attrNode) return;
+				text = $input[0].getAttribute('placeholder');
+				if (!text || !text.length) return;
+				$input[0].setAttribute('placeholder', '');
+				$input.data('placeholder', text);
+			}
 		} catch (e) {
 			return;
 		}
@@ -44,13 +56,16 @@
 		// enumerate textbox styles for mimicking
 		styles = {};
 		for (i = 0; i < CSS_PROPERTIES.length; i++) {
-			styles[CSS_PROPERTIES[i]] = $input.css(CSS_PROPERTIES[i]);
+			if (!excludeRule(options["excludes"],CSS_PROPERTIES[i]))
+				styles[CSS_PROPERTIES[i]] = $input.css(CSS_PROPERTIES[i]);
 		}
 		zIndex = parseInt($input.css('z-index'), 10);
 		if (isNaN(zIndex) || !zIndex) zIndex = 1;
 
 		// create the placeholder
 		$placeholder = $('<span>').addClass('placeholder').html(text);
+		if (options && options["customClass"])
+			$placeholder.addClass(options["customClass"]);
 		$placeholder.css(styles);
 		$placeholder.css({
 			'cursor': $input.css('cursor') || 'text',
@@ -71,10 +86,12 @@
 		$placeholder.insertBefore($input);
 
 		// compensate for y difference caused by absolute / relative difference (line-height factor)
-		dy = $input.offset().top - $placeholder.offset().top;
-		marginTop = parseInt($placeholder.css('margin-top'));
-		if (isNaN(marginTop)) marginTop = 0;
-		$placeholder.css('margin-top', marginTop + dy);
+		if (!excludeRule(options["excludes"],"margin-top")){
+			dy = $input.offset().top - $placeholder.offset().top;
+			marginTop = parseInt($placeholder.css('margin-top'));
+			if (isNaN(marginTop)) marginTop = 0;
+			$placeholder.css('margin-top', marginTop + dy);
+		}
 
 		// event handlers + add to document
 		$placeholder.on('mousedown', function() {
